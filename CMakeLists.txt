@@ -7,6 +7,7 @@ add_subdirectory(SOEM)
 
 add_library(rtbessential2dctl SHARED lib/rtbtest.c)
 target_link_libraries(rtbessential2dctl PUBLIC soem)
+set_property(TARGET soem PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(WIN32)
   target_include_directories(rtbessential2dctl PUBLIC SOEM/oshw/win32/wpcap/Include)
