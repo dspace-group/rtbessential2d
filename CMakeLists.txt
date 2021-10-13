@@ -5,7 +5,7 @@ set(WINPCAP_LIBRARY_WPCAP "not set" CACHE PATH "Path to WinPCap library")
 project(rtbessential2d)
 add_subdirectory(SOEM)
 
-add_library(rtbessential2dctl SHARED lib/rtbtest.c)
+add_library(rtbessential2dctl SHARED lib/rtbessential2d.c)
 target_link_libraries(rtbessential2dctl PUBLIC soem)
 set_property(TARGET soem PROPERTY POSITION_INDEPENDENT_CODE ON)
 
