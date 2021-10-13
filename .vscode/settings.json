@@ -1,9 +1,0 @@
-{
-    "files.associations": {
-        "rtbessential2d.h": "c",
-        "ethercat.h": "c",
-        "ethercattype.h": "c",
-        "osal.h": "c",
-        "rtbessential2d_private.h": "c"
-    }
-}
