@@ -26,5 +26,6 @@ APIFCN tRtb * rtb_init();
 APIFCN tRtbResult rtb_term(tRtb * h);
 APIFCN tRtbResult rtb_showInterfaces(tRtb * h);
 APIFCN tRtbResult rtb_start(tRtb * h, char * ifname);
+APIFCN tRtbResult rtb_showdetectedslaves(tRtb * h, int nSlaves);
 
 #endif /* __RTBESSENTIAL2D_H__ */

@@ -56,3 +56,8 @@ build/
 
 # VSCode internal dir
 *.vscode/
+
+# internal files
+eni.xml
+exi.xml
+esi.xml
