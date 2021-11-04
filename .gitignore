@@ -61,6 +61,7 @@ build/
 venv/
 *.pyc
 __pycache__/
+pypackages/
 instance/
 .pytest_cache/
 .coverage
@@ -68,3 +69,11 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+
+#Webapp
+bulma/
+
+# EtherCAT
+eni.xml
+exi.xml
+esi.xml
