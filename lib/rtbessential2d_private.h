@@ -22,5 +22,18 @@ tEcSlaveDesc ecSlaveDescs[] = {
     {.id = 3, .name = "N5-1-1", .manId = 0x0000026c, .prodId = 0x00000007 }
 };
 
+typedef struct PACKED {
+    uint16_t Statusword;
+    int32_t Position_actual_value;
+    int8_t Modes_of_operation_display;
+    int32_t VelocityActualValue;
+} tN5DriveIn;
+
+typedef struct PACKED {
+    uint16_t Controlword;
+    int32_t Target_Position;
+    uint32_t Motor_drive_submode_select;
+    int8_t Modes_of_operation;
+} tN5DriveOut;
 
 #endif /* __RTBESSENTIAL2D_PRIVATE_H__ */

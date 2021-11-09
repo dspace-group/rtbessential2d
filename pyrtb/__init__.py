@@ -11,8 +11,9 @@ class Pyrtb:
     
     _init = None
     _show_interfaces = None
-    _get_number_of_interfaces = None
     _get_interface = None
+    _get_number_of_detected_slaves = None
+    _get_slave_information = None
     _start = None
     _term = None
 
@@ -33,20 +34,22 @@ class Pyrtb:
         self._get_state.argtypes = [ ctypes.c_void_p, ctypes.c_void_p ]
         self._get_state.restype = ctypes.c_void_p
 
-        # setup rtb_showInterfaces()
-        self._show_interfaces = self._lib.rtb_showInterfaces
-        self._show_interfaces.argtypes = [ ctypes.c_void_p ]
-        self._show_interfaces.restype = ctypes.c_uint
+        # setup rtb_getNumberOfDetectedSlaves()
+        self._get_number_of_detected_slaves = self._lib.rtb_getNumberOfDetectedSlaves
+        self._get_number_of_detected_slaves.argtypes = [ ctypes.c_void_p, ctypes.c_void_p ]
+        self._get_number_of_detected_slaves.restype = ctypes.c_uint
 
-        # setup rtb_showdetectedslaves
-        self._show_detected_slaves = self._lib.rtb_showdetectedslaves
-        self._show_detected_slaves.argtypes = [ ctypes.c_void_p, ctypes.c_char_p ]
-        self._show_detected_slaves.restype = ctypes.c_uint
+        # setup rtb_getSlaveInformation()
+        self._get_slave_information = self._lib.rtb_getSlaveInformation
+        self._get_slave_information.argtypes = [ ctypes.c_void_p, ctypes.c_int, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p]
+        self._get_slave_information.restype = ctypes.c_uint
 
+        # setup rtb_getNumberOfInterfaces
         self._get_number_of_interfaces = self._lib.rtb_getNumberOfInterfaces
         self._get_number_of_interfaces.argtypes = [ ctypes.c_void_p, ctypes.c_void_p ]
         self._get_number_of_interfaces.restype = ctypes.c_uint
 
+        # setup rtb_getInterface
         self._get_interface = self._lib.rtb_getInterface
         self._get_interface.argtypes = [ ctypes.c_void_p, ctypes.c_uint, ctypes.c_char_p, ctypes.c_char_p ]
         self._get_interface.restype = ctypes.c_uint
@@ -89,9 +92,18 @@ class Pyrtb:
         return res
     
     def Get_detected_slaves(self):
-        buf = ctypes.create_string_buffer(b'\000' * 2 * 1024 * 1024)
-        self._show_detected_slaves(self._handle, buf)
-        return buf.value.decode("utf-8")
+        n = ctypes.c_uint()
+        self._get_number_of_detected_slaves(self._handle, ctypes.byref(n))
+
+        name = ctypes.create_string_buffer(b'\000' * 1024)
+        configAdr = ctypes.c_uint()
+        manId = ctypes.c_uint()
+        prodId = ctypes.c_uint()
+        res = []
+        for idx in range(n.value):
+            self._get_slave_information(self._handle, idx, name, ctypes.byref(configAdr), ctypes.byref(manId), ctypes.byref(prodId))
+            res.append({"name" : name.value.decode("utf-8"), "configAdr" : configAdr.value, "manId" : manId.value , "prodId" : prodId.value})
+        return res
     
     def Get_state(self):
         state = ctypes.c_uint()

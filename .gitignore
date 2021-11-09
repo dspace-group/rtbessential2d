@@ -74,6 +74,4 @@ build/
 bulma/
 
 # EtherCAT
-eni.xml
-exi.xml
-esi.xml
+intern/
