@@ -29,6 +29,12 @@ typedef enum {
   RTB_EC_SLAVE, // Wrong slave found
 } tRtbResult;
 
+typedef enum {
+    RTB_OM_HOMING,
+    RTB_OM_POSITION_CONTROL,
+    RTB_OM_POSITION_JOG,
+} tRtbOperationMode;
+
 APIFCN tRtb * rtb_init();
 APIFCN tRtbResult rtb_term(tRtb * h);
 APIFCN tRtbResult rtb_getState(tRtb * h, tRtbState * state);
@@ -41,5 +47,7 @@ APIFCN tRtbResult rtb_getNumberOfDetectedSlaves(tRtb * h, unsigned * n);
 APIFCN tRtbResult rtb_getSlaveInformation(tRtb * h, int idx, char * name, unsigned * configAdr, unsigned * manId, unsigned * prodId);
 APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double m1, double m2);
 APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg);
+APIFCN tRtbResult rtb_setOperationMode(tRtb * h, tRtbOperationMode moo);
+APIFCN tRtbResult rtb_getSimulationTime(tRtb * h, double * t, unsigned * steps);
 
 #endif /* __RTBESSENTIAL2D_H__ */

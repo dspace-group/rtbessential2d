@@ -13,13 +13,14 @@
 char IOmap[4096];
 
 typedef struct RtbStruct {
-  OSAL_THREAD_HANDLE worker;
-  int worker_loop;
-  char ** interfaceNames;
-  char ** interfaceDesc;
-  uint32_t interfacesCnt;
-
-  tRtbState libstate;
+    OSAL_THREAD_HANDLE worker;
+    int worker_loop;
+    char ** interfaceNames;
+    char ** interfaceDesc;
+    uint32_t interfacesCnt;
+    ec_timet tStart;
+    unsigned cnt;
+    tRtbState libstate;
 } tRtb;
 
 tRtb * _h = NULL;
@@ -55,10 +56,6 @@ tRtb * rtb_init() {
     }
 
     h->libstate = RTB_Initialized;
-
-    // Set default values
-    rtb_setCorrectionFactor(h, 0.881, 0.883333333333);
-    rtb_setAngles(h, 0.0, 0.0);
 
     return h;
 }
@@ -125,6 +122,19 @@ APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg) {
     return RTB_OK;
 }
 
+APIFCN tRtbResult rtb_quitError(tRtb * h) {
+    Sa1_Quit_error__0_1_ = 1;
+
+    return RTB_OK;
+}
+
+APIFCN tRtbResult rtb_setOperationMode(tRtb * h, tRtbOperationMode moo) {
+    if((unsigned) moo > RTB_OM_POSITION_JOG)
+        return RTB_ARG;
+    Sa1_OperationModes___ = moo;
+
+    return RTB_OK;
+}
 
 static void setup_motor(uint16 slave) {
     uint8 ui8;
@@ -261,6 +271,14 @@ tRtbResult rtb_start(tRtb * h, const char * ifname) {
     }
 
     /*
+     * Initialize the model
+     */
+    rtb_setCorrectionFactor(h, 0.881, 0.883333333333);
+    rtb_setAngles(h, 0.0, 0.0);
+    Sa1_Quit_error__0_1_ = 0;
+    rtb_setOperationMode(h, RTB_OM_HOMING);
+
+    /*
      * Initialize EtherCAT
      * - init SOEM library
      * - find and auto-config
@@ -326,6 +344,8 @@ tRtbResult rtb_start(tRtb * h, const char * ifname) {
     signal(SIGINT, sigfunc);
     printf("Start working loop..."); fflush(stdout);
     h->worker_loop = 1;
+    h->tStart = osal_current_time();
+    h->cnt = 0;
     osal_thread_create_rt(&h->worker, 128*1024, _rtb_worker, (void *) h);
     printf("done\n");
 
@@ -379,6 +399,17 @@ tRtbResult rtb_stop(tRtb * h) {
     return RTB_OK;
 }
 
+APIFCN tRtbResult rtb_getSimulationTime(tRtb * h, double * t, unsigned * steps) {
+    ec_timet d;
+    ec_timet now = osal_current_time();
+    
+    osal_time_diff(&h->tStart, &now, &d);
+    *t = d.sec * 1e6 + d.usec;
+    *steps = h->cnt;
+
+    return RTB_OK;
+}
+
 OSAL_THREAD_FUNC _rtb_worker(void * arg) {
     tRtb * h = (tRtb*) arg;
 
@@ -426,11 +457,13 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
             Sa1_Motor_2_Mo__eration_display = motor_in2->Modes_of_operation_display;
             Sa1_Motor_2_VelocityActualValue = motor_in2->VelocityActualValue;
 
-            printf("(Motor 1) Statusword: %d, Position actual value: %d, Modes of operation display: %d, Velocity Actual Value: %d\n", Sa1_Motor_1_Statusword, Sa1_Motor_1_Po__on_actual_value, Sa1_Motor_1_Mo__eration_display, Sa1_Motor_1_VelocityActualValue);
-            printf("(Motor 2) Statusword: %d, Position actual value: %d, Modes of operation display: %d, Velocity Actual Value: %d\n", Sa1_Motor_2_Statusword, Sa1_Motor_2_Po__on_actual_value, Sa1_Motor_2_Mo__eration_display, Sa1_Motor_2_VelocityActualValue);
+//            printf("(Motor 1) Statusword: %d, Position actual value: %d, Modes of operation display: %d, Velocity Actual Value: %d\n", Sa1_Motor_1_Statusword, Sa1_Motor_1_Po__on_actual_value, Sa1_Motor_1_Mo__eration_display, Sa1_Motor_1_VelocityActualValue);
+//            printf("(Motor 2) Statusword: %d, Position actual value: %d, Modes of operation display: %d, Velocity Actual Value: %d\n", Sa1_Motor_2_Statusword, Sa1_Motor_2_Po__on_actual_value, Sa1_Motor_2_Mo__eration_display, Sa1_Motor_2_VelocityActualValue);
 
             rtblogic();
-            printf("rtblogic()\n");
+            Sa1_Quit_error__0_1_ = 0; // Reset quit 
+            h->cnt++;
+//            printf("rtblogic()\n");
 
             motor_out1->Controlword = Sa1_Motor_1_Controlword;
             motor_out1->Target_Position = Sa1_Motor_1_Target_Position;
@@ -442,9 +475,9 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
             motor_out2->Motor_drive_submode_select = Sa1_Motor_2_Mo___submode_select;
             motor_out2->Modes_of_operation = Sa1_Motor_2_Modes_of_operation;
 
-            printf("(Motor 1) Controlword: %d, Target position: %d, Drive submode select: %d, Modes of operation: %d\n", motor_out1->Controlword, motor_out1->Target_Position, motor_out1->Motor_drive_submode_select, motor_out1->Modes_of_operation);
-            printf("(Motor 2) Controlword: %d, Target position: %d, Drive submode select: %d, Modes of operation: %d\n", motor_out2->Controlword, motor_out2->Target_Position, motor_out2->Motor_drive_submode_select, motor_out2->Modes_of_operation);
-            printf("\n");
+//            printf("(Motor 1) Controlword: %d, Target position: %d, Drive submode select: %d, Modes of operation: %d\n", motor_out1->Controlword, motor_out1->Target_Position, motor_out1->Motor_drive_submode_select, motor_out1->Modes_of_operation);
+//            printf("(Motor 2) Controlword: %d, Target position: %d, Drive submode select: %d, Modes of operation: %d\n", motor_out2->Controlword, motor_out2->Target_Position, motor_out2->Motor_drive_submode_select, motor_out2->Modes_of_operation);
+//            printf("\n");
         }        
     }
 }

@@ -16,6 +16,10 @@ class Pyrtb:
     _get_slave_information = None
     _start = None
     _term = None
+    _setCorrectionFactor = None
+    _setAngles = None
+    _setOperationMode = None
+    _getSimulationTime = None
 
     _handle = None
 
@@ -69,6 +73,26 @@ class Pyrtb:
         self._term.argtypes = [ ctypes.c_void_p ]
         self._term.restype = ctypes.c_uint
 
+        # setup _setCorrectionFactor
+        self._setCorrectionFactor = self._lib.rtb_setCorrectionFactor
+        self._setCorrectionFactor.argtypes = [ ctypes.c_void_p, ctypes.c_double, ctypes.c_double ]
+        self._setCorrectionFactor.restype = ctypes.c_uint
+
+        # setup _setAngles
+        self._setAngles = self._lib.rtb_setAngles
+        self._setAngles.argtypes = [ ctypes.c_void_p, ctypes.c_double, ctypes.c_double ]
+        self._setAngles.restype = ctypes.c_uint
+
+        # setup _setOperationMode
+        self._setOperationMode = self._lib.rtb_setOperationMode
+        self._setOperationMode.argtypes = [ ctypes.c_void_p, ctypes.c_uint ]
+        self._setOperationMode.restype = ctypes.c_uint
+
+        #setup _getSimulationTime
+        self._getSimulationTime = self._lib.rtb_getSimulationTime
+        self._getSimulationTime.argtypes = [ ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p ]
+        self._getSimulationTime.restype = ctypes.c_uint
+
         # initialize
         self._handle = self._init()
 
@@ -115,3 +139,21 @@ class Pyrtb:
     
     def Stop(self):
         return self._stop(self._handle)
+    
+    def Set_correction_factor(self, m1, m2):
+        return self._setCorrectionFactor(self._handle, m1, m2)
+    
+    def Set_angles(self, az_deg, el_deg):
+        return self._setAngles(self._handle, az_deg, el_deg)
+    
+    def Set_operation_mode(self, om):
+        return self._setOperationMode(self._handle, om)
+    
+    def Get_simulation_time(self):
+        t = ctypes.c_double()
+        steps = ctypes.c_uint()
+        res = self._getSimulationTime(self._handle, ctypes.byref(t), ctypes.byref(steps))
+        if(res == 0):
+            return [t.value / 1e6, steps.value]
+        return [None, None]
+        
