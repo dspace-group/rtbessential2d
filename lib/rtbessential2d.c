@@ -8,6 +8,7 @@
 
 #include "rtbessential2d.h"
 #include "rtbessential2d_private.h"
+#include "rtblogic.h"
 
 char IOmap[4096];
 
@@ -54,6 +55,11 @@ tRtb * rtb_init() {
     }
 
     h->libstate = RTB_Initialized;
+
+    // Set default values
+    rtb_setCorrectionFactor(h, 0.881, 0.883333333333);
+    rtb_setAngles(h, 0.0, 0.0);
+
     return h;
 }
 
@@ -82,6 +88,7 @@ tRtbResult rtb_getNumberOfInterfaces(tRtb * h, uint32_t * n) {
     *n = h->interfacesCnt;
     return RTB_OK;
 }
+
 tRtbResult rtb_getInterface(tRtb * h, uint32_t idx, char * name, char * desc) {
     strcpy(name, h->interfaceNames[idx]);
     strcpy(desc, h->interfaceDesc[idx]);
@@ -103,6 +110,21 @@ APIFCN tRtbResult rtb_getSlaveInformation(tRtb * h, int idx, char * name, unsign
 
     return RTB_OK;
 }
+
+APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double m1, double m2) {
+    Sa5_CorrectionFactor_M1 = m1;
+    Sa5_CorrectionFactor_M2 = m2;
+
+    return RTB_OK;
+}
+
+APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg) {
+    Sa1_angle_az_deg_ = az_deg;
+    Sa1_angle_el_deg_ = el_deg;
+
+    return RTB_OK;
+}
+
 
 static void setup_motor(uint16 slave) {
     uint8 ui8;
@@ -389,21 +411,39 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
          * Process data
          */
         if(h->libstate == RTB_Started && wkc == EC_SLAVES_Count*2) {
-            tN5DriveIn * motor_in = NULL;
+            tN5DriveIn * motor_in1 = (tN5DriveIn *) ec_slave[2].inputs;
+            tN5DriveOut * motor_out1 = (tN5DriveOut *) ec_slave[2].outputs;
+            tN5DriveIn * motor_in2 = (tN5DriveIn *) ec_slave[3].inputs;
+            tN5DriveOut * motor_out2 = (tN5DriveOut *) ec_slave[3].outputs;
 
-            motor_in = (tN5DriveIn *) ec_slave[2].inputs;
-            printf("motor_1:\n"
-                   "- Statusword: %d\n"
-                   "- Position_actual_value: %d\n"
-                   "- Modes_of_operation_display: %d\n"
-                   "- VelocityActualValue: %d\n", motor_in->Statusword, motor_in->Position_actual_value, motor_in->Modes_of_operation_display, motor_in->VelocityActualValue);
+            Sa1_Motor_1_Statusword = motor_in1->Statusword;
+            Sa1_Motor_1_Po__on_actual_value = motor_in1->Position_actual_value;
+            Sa1_Motor_1_Mo__eration_display = motor_in1->Modes_of_operation_display;
+            Sa1_Motor_1_VelocityActualValue = motor_in1->VelocityActualValue;
 
-            motor_in = (tN5DriveIn *) ec_slave[3].inputs;
-            printf("motor_2:\n"
-                   "- Statusword: %d\n"
-                   "- Position_actual_value: %d\n"
-                   "- Modes_of_operation_display: %d\n"
-                   "- VelocityActualValue: %d\n", motor_in->Statusword, motor_in->Position_actual_value, motor_in->Modes_of_operation_display, motor_in->VelocityActualValue);
+            Sa1_Motor_2_Statusword = motor_in2->Statusword;
+            Sa1_Motor_2_Po__on_actual_value = motor_in2->Position_actual_value;
+            Sa1_Motor_2_Mo__eration_display = motor_in2->Modes_of_operation_display;
+            Sa1_Motor_2_VelocityActualValue = motor_in2->VelocityActualValue;
+
+            printf("(Motor 1) Statusword: %d, Position actual value: %d, Modes of operation display: %d, Velocity Actual Value: %d\n", Sa1_Motor_1_Statusword, Sa1_Motor_1_Po__on_actual_value, Sa1_Motor_1_Mo__eration_display, Sa1_Motor_1_VelocityActualValue);
+            printf("(Motor 2) Statusword: %d, Position actual value: %d, Modes of operation display: %d, Velocity Actual Value: %d\n", Sa1_Motor_2_Statusword, Sa1_Motor_2_Po__on_actual_value, Sa1_Motor_2_Mo__eration_display, Sa1_Motor_2_VelocityActualValue);
+
+            rtblogic();
+            printf("rtblogic()\n");
+
+            motor_out1->Controlword = Sa1_Motor_1_Controlword;
+            motor_out1->Target_Position = Sa1_Motor_1_Target_Position;
+            motor_out1->Motor_drive_submode_select = Sa1_Motor_1_Mo___submode_select;
+            motor_out1->Modes_of_operation = Sa1_Motor_1_Modes_of_operation;
+
+            motor_out2->Controlword = Sa1_Motor_2_Controlword;
+            motor_out2->Target_Position = Sa1_Motor_2_Target_Position;
+            motor_out2->Motor_drive_submode_select = Sa1_Motor_2_Mo___submode_select;
+            motor_out2->Modes_of_operation = Sa1_Motor_2_Modes_of_operation;
+
+            printf("(Motor 1) Controlword: %d, Target position: %d, Drive submode select: %d, Modes of operation: %d\n", motor_out1->Controlword, motor_out1->Target_Position, motor_out1->Motor_drive_submode_select, motor_out1->Modes_of_operation);
+            printf("(Motor 2) Controlword: %d, Target position: %d, Drive submode select: %d, Modes of operation: %d\n", motor_out2->Controlword, motor_out2->Target_Position, motor_out2->Motor_drive_submode_select, motor_out2->Modes_of_operation);
             printf("\n");
         }        
     }

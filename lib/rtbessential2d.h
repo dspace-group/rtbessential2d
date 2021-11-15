@@ -39,6 +39,7 @@ APIFCN tRtbResult rtb_start(tRtb * h, const char * ifname);
 APIFCN tRtbResult rtb_stop(tRtb * h);
 APIFCN tRtbResult rtb_getNumberOfDetectedSlaves(tRtb * h, unsigned * n);
 APIFCN tRtbResult rtb_getSlaveInformation(tRtb * h, int idx, char * name, unsigned * configAdr, unsigned * manId, unsigned * prodId);
-
+APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double m1, double m2);
+APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg);
 
 #endif /* __RTBESSENTIAL2D_H__ */

@@ -7,7 +7,7 @@ from pyrtb import Pyrtb
 
 def create_app():
     # create and configure the app
-    app = Flask(__name__, instance_relative_config=True)
+    app = Flask(__name__, instance_relative_config=True, static_url_path='')
 
     # ensure the instance folder exists
     try:
@@ -15,7 +15,13 @@ def create_app():
     except OSError:
         pass
     
-    pyrtb = Pyrtb("build/librtbessential2dctl.so")
+    path_to_lib = None
+    if os.name == "posix":
+        path_to_lib = "build/librtbessential2dctl.so"
+    if os.name == "nt":
+        path_to_lib = "build/Debug/rtbessential2dctl.dll"
+    
+    pyrtb = Pyrtb(path_to_lib)
     state = "Not initialized"
     logs = [{
         "time": datetime.now().strftime("%H:%M:%S"),
@@ -27,7 +33,7 @@ def create_app():
     # a simple page that says hello
     @app.route('/')
     def root():
-        return render_template('base.html')
+        return render_template('index.html')
     
     @app.route('/info')
     def info():
