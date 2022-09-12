@@ -2,7 +2,7 @@
 Radar Test Bench - Essential 2D Control Library
 
 ## Build
-`
+```
 git clone --recurse-submodules https://github.com/dspace-group/rtbessential2d.git
 
 cd rtbessential2d/
@@ -11,7 +11,7 @@ cd build
 
 cmake ..
 make
-`
+```
 
 ## Dependencies
 
