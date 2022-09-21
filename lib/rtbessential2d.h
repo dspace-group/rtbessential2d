@@ -30,10 +30,21 @@ typedef enum {
 } tRtbResult;
 
 typedef enum {
-    RTB_OM_HOMING,
+    RTB_OM_HOMING = 1,
     RTB_OM_POSITION_CONTROL,
     RTB_OM_POSITION_JOG,
 } tRtbOperationMode;
+
+typedef struct {
+    uint16_t controlword;
+    int32_t  targetPosition;
+    uint32_t motorDriveSubmodeSelect;
+    int8_t  modesOfOperation;
+    uint16_t statusword;
+    int8_t modesOfOperationDisplay;
+    int32_t positionActualValue;
+    int32_t velocityActualValue;
+} tRtbMotorStatus;
 
 APIFCN tRtb * rtb_init();
 APIFCN tRtbResult rtb_term(tRtb * h);
@@ -47,7 +58,11 @@ APIFCN tRtbResult rtb_getNumberOfDetectedSlaves(tRtb * h, unsigned * n);
 APIFCN tRtbResult rtb_getSlaveInformation(tRtb * h, int idx, char * name, unsigned * configAdr, unsigned * manId, unsigned * prodId);
 APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double m1, double m2);
 APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg);
+APIFCN tRtbResult rtb_enableTestbench(tRtb * h, boolean enable);
+APIFCN tRtbResult rtb_enableSwEnpo(tRtb * h, boolean enable);
+APIFCN tRtbResult rtb_ackError(tRtb * h);
 APIFCN tRtbResult rtb_setOperationMode(tRtb * h, tRtbOperationMode moo);
+APIFCN tRtbResult rtb_enableHoming(tRtb * h, boolean enable);
 APIFCN tRtbResult rtb_getSimulationTime(tRtb * h, double * t, unsigned * steps);
-
+APIFCN tRtbResult rtb_getMotorStatus(tRtb * h, tRtbMotorStatus * m1, tRtbMotorStatus * m2);
 #endif /* __RTBESSENTIAL2D_H__ */

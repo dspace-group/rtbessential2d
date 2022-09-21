@@ -1,10 +1,120 @@
 import os, sys
 import ctypes
 import ctypes.util
+from ctypes import *
 import argparse
 
 __all__ = ["Pyrtb"]
 __version__ = "0.0.1"
+
+class CtypesMotorStatus(ctypes.Structure):
+    _fields_ = [
+        ("controlword", ctypes.c_uint16),
+        ("targetPosition", ctypes.c_int32),
+        ("motorDriveSubmodeSelect", ctypes.c_uint32),
+        ("modesOfOperation", ctypes.c_int8),
+        ("statusword", ctypes.c_uint16),
+        ("modesOfOperationDisplay", ctypes.c_int8),
+        ("positionActualValue", ctypes.c_int32),
+        ("velocityActualValue", ctypes.c_int32)
+    ]
+
+class MotorStatus():
+    def __init__(self, ctypes_motor_status):
+        self.controlword = ctypes_motor_status.controlword
+        self.targetPosition = ctypes_motor_status.targetPosition
+        self.motorDriveSubmodeSelect = ctypes_motor_status.motorDriveSubmodeSelect
+        self.modesOfOperation = ctypes_motor_status.modesOfOperation
+
+        self.statusword = ctypes_motor_status.statusword
+        self.modesOfOperationDisplay = ctypes_motor_status.modesOfOperationDisplay
+        self.positionActualValue = ctypes_motor_status.positionActualValue
+        self.velocityActualValue = ctypes_motor_status.velocityActualValue
+    
+    def Decode_modesOfOperation(self, value):
+        if(value < 0):
+            return "manufacturer-specific"
+        modesOfOperationTbl = []
+        modesOfOperationTbl.append("no mode change / no mode assigned")
+        modesOfOperationTbl.append("profile position mode")
+        modesOfOperationTbl.append("velocity mode")
+        modesOfOperationTbl.append("profile velocity mode")
+        modesOfOperationTbl.append("profile torque mode")
+        modesOfOperationTbl.append("reserved")
+        modesOfOperationTbl.append("homing mode")
+        modesOfOperationTbl.append("interpolated position mode")
+        modesOfOperationTbl.append("cyclic synchronous position mode")
+        modesOfOperationTbl.append("cyclic synchronous velocity mode")
+        modesOfOperationTbl.append("cyclic synchronous torque mode")
+        return modesOfOperationTbl[value]
+
+    def Decode_controlword(self, value):
+        lst = []
+        lst.append(("Switch on", value & 1 << 0))
+        lst.append(("Enable voltage", value & 1 << 1))
+        lst.append(("Quick stop", value & 1 << 2))
+        lst.append(("Enable operation", value & 1 << 3))
+        #lst.append(("Mode specific 4", value & 1 << 4))
+        #lst.append(("Mode specific 5", value & 1 << 5))
+        #lst.append(("Mode specific 6", value & 1 << 6))
+        lst.append(("Fault reset", value & 1 << 7))
+        lst.append(("Halt", value & 1 << 8))
+        #lst.append(("Mode specific 9", value & 1 << 9))
+        #lst.append(("Reserved", value & 1 << 10))
+        lst.append(("Begin on time", value & 1 << 11))
+        #lst.append(("manufacturer-specific 12", value & 1 << 12))
+        #lst.append(("manufacturer-specific 13", value & 1 << 13))
+        #lst.append(("manufacturer-specific 14", value & 1 << 14))
+        #lst.append(("manufacturer-specific 15", value & 1 << 15))
+        return "\n   ".join((c[0]+ ": " + ("Off" if c[1] == 0 else "On")) for c in lst)
+    
+    def Decode_statusword(self, value):
+        lst = []
+        lst.append(("Ready to switch on", value & 1 << 0))
+        lst.append(("Switched on", value & 1 << 1))
+        lst.append(("Operation enabled", value & 1 << 2))
+        lst.append(("Fault", value & 1 << 3))
+        lst.append(("Voltage enabled", value & 1 << 4))
+        lst.append(("Quick stop", value & 1 << 5))
+        lst.append(("Switch on disabled", value & 1 << 6))
+        lst.append(("Warning", value & 1 << 7))
+        #lst.append(("manufacturer-specific 8", value & 1 << 8))
+        lst.append(("Remote", value & 1 << 9))
+        lst.append(("Target reached", value & 1 << 10))
+        lst.append(("Internal limit active", value & 1 << 11))
+        #lst.append(("Mode specific 12", value & 1 << 12))
+        #lst.append(("Mode specific 13", value & 1 << 13))
+        #lst.append(("manufacturer-specific 14", value & 1 << 14))
+        #lst.append(("manufacturer-specific 15", value & 1 << 15))
+        return "\n   ".join((c[0]+ ": " + ("Off" if c[1] == 0 else "On")) for c in lst)
+    
+    def Decode_motordrivesubmodeselect(self, value):
+        lst = []
+        lst.append(("CL/OL", value & 1 << 0))
+        lst.append(("VoS", value & 1 << 1))
+        lst.append(("Brake", value & 1 << 2))
+        lst.append(("Current Reduction", value & 1 << 3))
+        lst.append(("AutoAl", value & 1 << 4))
+        lst.append(("Torque", value & 1 << 5))
+        lst.append(("BLDC", value & 1 << 6))
+        lst.append(("Slow ", value & 1 << 7))
+        return "\n   ".join((c[0]+ ": " + ("Off" if c[1] == 0 else "On")) for c in lst)
+
+    def __str__(self):
+        resStr = f"""Motor control:
+- Control word: {self.controlword}
+   {self.Decode_controlword(self.controlword)}
+- Target position: {self.targetPosition}
+- Motor drive submode select: {self.motorDriveSubmodeSelect}
+   {self.Decode_motordrivesubmodeselect(self.motorDriveSubmodeSelect)}
+- Modes of operation: {self.modesOfOperation}, '{self.Decode_modesOfOperation(self.modesOfOperation)}'
+Motor status:
+- Status word: {self.statusword}
+   {self.Decode_statusword(self.statusword)}
+- Modes of operation display: {self.modesOfOperationDisplay}, '{self.Decode_modesOfOperation(self.modesOfOperationDisplay)}'
+- Position: {self.positionActualValue}
+- Velocity: {self.velocityActualValue}\n"""
+        return resStr
 
 class Pyrtb:
     _lib = None
@@ -18,8 +128,13 @@ class Pyrtb:
     _term = None
     _setCorrectionFactor = None
     _setAngles = None
+    _enableTestbench = None
+    _enableSwEnpo = None
     _setOperationMode = None
+    _ackError = None
+    _enableHoming = None
     _getSimulationTime = None
+    _getCtypesMotorStatus = None
 
     _handle = None
 
@@ -82,6 +197,31 @@ class Pyrtb:
         self._setAngles = self._lib.rtb_setAngles
         self._setAngles.argtypes = [ ctypes.c_void_p, ctypes.c_double, ctypes.c_double ]
         self._setAngles.restype = ctypes.c_uint
+
+        # setup _enableTestbench
+        self._enableTestbench = self._lib.rtb_enableTestbench
+        self._enableTestbench.argtypes = [ ctypes.c_void_p, ctypes.c_bool ]
+        self._enableTestbench.restype = ctypes.c_uint
+
+        # setup _enableSwEnpo
+        self._enableSwEnpo = self._lib.rtb_enableSwEnpo
+        self._enableSwEnpo.argtypes = [ ctypes.c_void_p, ctypes.c_bool ]
+        self._enableSwEnpo.restype = ctypes.c_uint
+
+        # setup _ackError
+        self._ackError = self._lib.rtb_ackError
+        self._ackError.argtypes = [ ctypes.c_void_p ]
+        self._ackError.restype = ctypes.c_uint
+
+        # setup _enableHoming
+        self._enableHoming = self._lib.rtb_enableHoming
+        self._enableHoming.argtypes = [ ctypes.c_void_p, ctypes.c_bool ]
+        self._enableHoming.restype = ctypes.c_uint
+
+        # setup _getMotorStatus
+        self._getMotorStatus = self._lib.rtb_getMotorStatus
+        self._getMotorStatus.argtypes = [ ctypes.c_void_p, POINTER(CtypesMotorStatus), POINTER(CtypesMotorStatus) ]
+        self._getMotorStatus.restype = ctypes.c_uint
 
         # setup _setOperationMode
         self._setOperationMode = self._lib.rtb_setOperationMode
@@ -147,8 +287,32 @@ class Pyrtb:
         return self._setAngles(self._handle, az_deg, el_deg)
     
     def Set_operation_mode(self, om):
+        # 0: Homing
+        # 1: Control
+        # 2: Jog
         return self._setOperationMode(self._handle, om)
     
+    def Enable_testbench(self, enable=True):
+        return self._enableTestbench(self._handle, enable)
+    
+    def Enable_enpo(self, enable=True):
+        return self._enableSwEnpo(self._handle, enable)
+    
+    def Ack_error(self):
+        return self._ackError(self._handle)
+    
+    def Enable_homing(self, enable=True):
+        return self._enableHoming(self._handle, enable)
+
+    def Get_motor_status(self):
+        m1 = CtypesMotorStatus()
+        m2 = CtypesMotorStatus()
+        rc = self._getMotorStatus(self._handle, ctypes.byref(m1), ctypes.byref(m2))
+        if(rc != 0):
+            return (None, None)
+        
+        return (MotorStatus(m1), MotorStatus(m2))
+
     def Get_simulation_time(self):
         t = ctypes.c_double()
         steps = ctypes.c_uint()

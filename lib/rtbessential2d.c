@@ -122,9 +122,18 @@ APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg) {
     return RTB_OK;
 }
 
-APIFCN tRtbResult rtb_quitError(tRtb * h) {
-    Sa1_Quit_error__0_1_ = 1;
+APIFCN tRtbResult rtb_enableTestbench(tRtb * h, boolean enable) {
+    Sa1_Testbench___rol_Enable_0_1_ = enable;
+    return RTB_OK;
+}
 
+APIFCN tRtbResult rtb_enableSwEnpo(tRtb * h, boolean enable) {
+    Sa1_Enable_SW_ENPO_0_1_ = enable;
+    return RTB_OK;
+}
+
+APIFCN tRtbResult rtb_ackError(tRtb * h) {
+    Sa1_Quit_error__0_1_ = 1;
     return RTB_OK;
 }
 
@@ -133,6 +142,46 @@ APIFCN tRtbResult rtb_setOperationMode(tRtb * h, tRtbOperationMode moo) {
         return RTB_ARG;
     Sa1_OperationModes___ = moo;
 
+    return RTB_OK;
+}
+
+APIFCN tRtbResult rtb_enableHoming(tRtb * h, boolean enable) {
+    Sa1_Start_Homing_0_1_ = enable;
+    return RTB_OK;
+}
+
+APIFCN tRtbResult rtb_getSimulationTime(tRtb * h, double * t, unsigned * steps) {
+    ec_timet d;
+    ec_timet now = osal_current_time();
+    
+    osal_time_diff(&h->tStart, &now, &d);
+    *t = d.sec * 1e6 + d.usec;
+    *steps = h->cnt;
+
+    return RTB_OK;
+}
+
+APIFCN tRtbResult rtb_getMotorStatus(tRtb * h, tRtbMotorStatus * m1, tRtbMotorStatus * m2) {
+    m1->statusword = Sa1_Motor_1_Statusword;
+    m1->modesOfOperationDisplay = Sa1_Motor_1_Mo__eration_display;
+    m1->positionActualValue = Sa1_Motor_1_Po__on_actual_value;
+    m1->velocityActualValue = Sa1_Motor_1_VelocityActualValue;
+    
+    m1->controlword             = Sa1_Motor_1_Controlword;
+    m1->targetPosition          = Sa1_Motor_1_Target_Position;
+    m1->motorDriveSubmodeSelect = Sa1_Motor_1_Mo___submode_select;
+    m1->modesOfOperation        = Sa1_Motor_1_Modes_of_operation;
+
+    m2->statusword = Sa1_Motor_2_Statusword;
+    m2->modesOfOperationDisplay = Sa1_Motor_2_Mo__eration_display;
+    m2->positionActualValue = Sa1_Motor_2_Po__on_actual_value;
+    m2->velocityActualValue = Sa1_Motor_2_VelocityActualValue;
+
+    m2->controlword             = Sa1_Motor_2_Controlword;
+    m2->targetPosition          = Sa1_Motor_2_Target_Position;
+    m2->motorDriveSubmodeSelect = Sa1_Motor_2_Mo___submode_select;
+    m2->modesOfOperation        = Sa1_Motor_2_Modes_of_operation;
+    
     return RTB_OK;
 }
 
@@ -151,16 +200,16 @@ static void setup_motor(uint16 slave) {
     ui8 = 0x00;
     retval += ec_SDOwrite(slave, 6656, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // clear pdo 0x1A00 entries
 
-    ui32 = 0x10004160;
+    ui32 = EOE_HTONL(0x10004160); //0x60410010;
     retval += ec_SDOwrite(slave, 6656, 1, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A00 entry
 
-    ui32 = 0x20006460;
+    ui32 = EOE_HTONL(0x20006460); // 0x60640020;
     retval += ec_SDOwrite(slave, 6656, 2, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A00 entry
 
-    ui32 = 0x08006160;
+    ui32 = EOE_HTONL(0x08006160); // 0x60610008;
     retval += ec_SDOwrite(slave, 6656, 3, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A00 entry
 
-    ui32 = 0x20006c60;
+    ui32 = EOE_HTONL(0x20006c60); // 0x606c0020;
     retval += ec_SDOwrite(slave, 6656, 4, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A00 entry
 
     ui8 = 0x04;
@@ -169,7 +218,7 @@ static void setup_motor(uint16 slave) {
     ui8 = 0x00;
     retval += ec_SDOwrite(slave, 6657, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // clear pdo 0x1A01 entries
 
-    ui32 = 0x20006460;
+    ui32 = EOE_HTONL(0x20006460); // 0x60640020;
     retval += ec_SDOwrite(slave, 6657, 1, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A01 entry
 
     ui8 = 0x01;
@@ -178,7 +227,7 @@ static void setup_motor(uint16 slave) {
     ui8 = 0x00;
     retval += ec_SDOwrite(slave, 6658, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // clear pdo 0x1A02 entries
 
-    ui32 = 0x10004460;
+    ui32 = EOE_HTONL(0x10004460); // 0x60440010;
     retval += ec_SDOwrite(slave, 6658, 1, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A02 entry
 
     ui8 = 0x01;
@@ -187,13 +236,13 @@ static void setup_motor(uint16 slave) {
     ui8 = 0x00;
     retval += ec_SDOwrite(slave, 6659, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // clear pdo 0x1A03 entries
 
-    ui32 = 0x2000fd60;
+    ui32 = EOE_HTONL(0x2000fd60); // 0x60fd0020;
     retval += ec_SDOwrite(slave, 6659, 1, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A03 entry
 
-    ui32 = 0x20012033;
+    ui32 = EOE_HTONL(0x20012033); // 0x33200120;
     retval += ec_SDOwrite(slave, 6659, 2, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A03 entry
 
-    ui32 = 0x20022033;
+    ui32 = EOE_HTONL(0x20022033); // 0x33200220;
     retval += ec_SDOwrite(slave, 6659, 3, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1A03 entry
 
     ui8 = 0x03;
@@ -202,16 +251,16 @@ static void setup_motor(uint16 slave) {
     ui8 = 0x00;
     retval += ec_SDOwrite(slave, 5632, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // clear pdo 0x1600 entries
 
-    ui32 = 0x10004060;
+    ui32 = EOE_HTONL(0x10004060); // 0x60400010;
     retval += ec_SDOwrite(slave, 5632, 1, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1600 entry
 
-    ui32 = 0x20007a60;
+    ui32 = EOE_HTONL(0x20007a60); // 0x607a0020;
     retval += ec_SDOwrite(slave, 5632, 2, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1600 entry
 
-    ui32 = 0x20000232;
+    ui32 = EOE_HTONL(0x20000232); // 0x32020020;
     retval += ec_SDOwrite(slave, 5632, 3, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1600 entry
 
-    ui32 = 0x08006060;
+    ui32 = EOE_HTONL(0x08006060); // 0x60600008;
     retval += ec_SDOwrite(slave, 5632, 4, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1600 entry
 
     ui8 = 0x04;
@@ -220,10 +269,10 @@ static void setup_motor(uint16 slave) {
     ui8 = 0x00;
     retval += ec_SDOwrite(slave, 5633, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // clear pdo 0x1601 entries
 
-    ui32 = 0x20007a60;
+    ui32 = EOE_HTONL(0x20007a60); // 0x607a0020;
     retval += ec_SDOwrite(slave, 5633, 1, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1601 entry
 
-    ui32 = 0x20008160;
+    ui32 = EOE_HTONL(0x20008160); // 0x60810020;
     retval += ec_SDOwrite(slave, 5633, 2, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1601 entry
 
     ui8 = 0x02;
@@ -232,7 +281,7 @@ static void setup_motor(uint16 slave) {
     ui8 = 0x00;
     retval += ec_SDOwrite(slave, 5634, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // clear pdo 0x1602 entries
 
-    ui32 = 0x10004260;
+    ui32 = EOE_HTONL(0x10004260); // 0x60420010;
     retval += ec_SDOwrite(slave, 5634, 1, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1602 entry
 
     ui8 = 0x01;
@@ -241,19 +290,19 @@ static void setup_motor(uint16 slave) {
     ui8 = 0x00;
     retval += ec_SDOwrite(slave, 5635, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // clear pdo 0x1603 entries
 
-    ui32 = 0x10004260;
+    ui32 = EOE_HTONL(0x10004260); // 0x60420010;
     retval += ec_SDOwrite(slave, 5635, 1, FALSE, sizeof(ui32), &ui32, EC_TIMEOUTSAFE); // download pdo 0x1603 entry
 
     ui8 = 0x01;
     retval += ec_SDOwrite(slave, 5635, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // download pdo 0x1603 entry count
 
-    ui16 = 0x0016;
+    ui16 = EOE_HTONS(0x0016); // 0x1600;
     retval += ec_SDOwrite(slave, 7186, 1, FALSE, sizeof(ui16), &ui16, EC_TIMEOUTSAFE); // download pdo 0x1C12:01 index
 
     ui8 = 0x01;
     retval += ec_SDOwrite(slave, 7186, 0, FALSE, sizeof(ui8), &ui8, EC_TIMEOUTSAFE); // download pdo 0x1C12 count
 
-    ui16 = 0x001a;
+    ui16 = EOE_HTONS(0x001a); // 0x1a00;
     retval += ec_SDOwrite(slave, 7187, 1, FALSE, sizeof(ui16), &ui16, EC_TIMEOUTSAFE); // download pdo 0x1C13:01 index
 
     ui8 = 0x01;
@@ -399,17 +448,6 @@ tRtbResult rtb_stop(tRtb * h) {
     return RTB_OK;
 }
 
-APIFCN tRtbResult rtb_getSimulationTime(tRtb * h, double * t, unsigned * steps) {
-    ec_timet d;
-    ec_timet now = osal_current_time();
-    
-    osal_time_diff(&h->tStart, &now, &d);
-    *t = d.sec * 1e6 + d.usec;
-    *steps = h->cnt;
-
-    return RTB_OK;
-}
-
 OSAL_THREAD_FUNC _rtb_worker(void * arg) {
     tRtb * h = (tRtb*) arg;
 
@@ -447,37 +485,29 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
             tN5DriveIn * motor_in2 = (tN5DriveIn *) ec_slave[3].inputs;
             tN5DriveOut * motor_out2 = (tN5DriveOut *) ec_slave[3].outputs;
 
-            Sa1_Motor_1_Statusword = motor_in1->Statusword;
-            Sa1_Motor_1_Po__on_actual_value = motor_in1->Position_actual_value;
+            Sa1_Motor_1_Statusword          = EOE_HTONS(motor_in1->Statusword);
+            Sa1_Motor_1_Po__on_actual_value = EOE_HTONL(motor_in1->Position_actual_value);
             Sa1_Motor_1_Mo__eration_display = motor_in1->Modes_of_operation_display;
-            Sa1_Motor_1_VelocityActualValue = motor_in1->VelocityActualValue;
+            Sa1_Motor_1_VelocityActualValue = EOE_HTONL(motor_in1->VelocityActualValue);
 
-            Sa1_Motor_2_Statusword = motor_in2->Statusword;
-            Sa1_Motor_2_Po__on_actual_value = motor_in2->Position_actual_value;
+            Sa1_Motor_2_Statusword          = EOE_HTONS(motor_in2->Statusword);
+            Sa1_Motor_2_Po__on_actual_value = EOE_HTONL(motor_in2->Position_actual_value);
             Sa1_Motor_2_Mo__eration_display = motor_in2->Modes_of_operation_display;
-            Sa1_Motor_2_VelocityActualValue = motor_in2->VelocityActualValue;
-
-//            printf("(Motor 1) Statusword: %d, Position actual value: %d, Modes of operation display: %d, Velocity Actual Value: %d\n", Sa1_Motor_1_Statusword, Sa1_Motor_1_Po__on_actual_value, Sa1_Motor_1_Mo__eration_display, Sa1_Motor_1_VelocityActualValue);
-//            printf("(Motor 2) Statusword: %d, Position actual value: %d, Modes of operation display: %d, Velocity Actual Value: %d\n", Sa1_Motor_2_Statusword, Sa1_Motor_2_Po__on_actual_value, Sa1_Motor_2_Mo__eration_display, Sa1_Motor_2_VelocityActualValue);
+            Sa1_Motor_2_VelocityActualValue = EOE_HTONL(motor_in2->VelocityActualValue);
 
             rtblogic();
-            Sa1_Quit_error__0_1_ = 0; // Reset quit 
+            Sa1_Quit_error__0_1_ = 0;
             h->cnt++;
-//            printf("rtblogic()\n");
 
-            motor_out1->Controlword = Sa1_Motor_1_Controlword;
-            motor_out1->Target_Position = Sa1_Motor_1_Target_Position;
-            motor_out1->Motor_drive_submode_select = Sa1_Motor_1_Mo___submode_select;
-            motor_out1->Modes_of_operation = Sa1_Motor_1_Modes_of_operation;
+            motor_out1->Controlword                = EOE_NTOHS(Sa1_Motor_1_Controlword);
+            motor_out1->Target_Position            = EOE_NTOHL(Sa1_Motor_1_Target_Position);
+            motor_out1->Motor_drive_submode_select = EOE_NTOHL(Sa1_Motor_1_Mo___submode_select);
+            motor_out1->Modes_of_operation         = Sa1_Motor_1_Modes_of_operation;
 
-            motor_out2->Controlword = Sa1_Motor_2_Controlword;
-            motor_out2->Target_Position = Sa1_Motor_2_Target_Position;
-            motor_out2->Motor_drive_submode_select = Sa1_Motor_2_Mo___submode_select;
-            motor_out2->Modes_of_operation = Sa1_Motor_2_Modes_of_operation;
-
-//            printf("(Motor 1) Controlword: %d, Target position: %d, Drive submode select: %d, Modes of operation: %d\n", motor_out1->Controlword, motor_out1->Target_Position, motor_out1->Motor_drive_submode_select, motor_out1->Modes_of_operation);
-//            printf("(Motor 2) Controlword: %d, Target position: %d, Drive submode select: %d, Modes of operation: %d\n", motor_out2->Controlword, motor_out2->Target_Position, motor_out2->Motor_drive_submode_select, motor_out2->Modes_of_operation);
-//            printf("\n");
+            motor_out2->Controlword                = EOE_NTOHS(Sa1_Motor_2_Controlword);
+            motor_out2->Target_Position            = EOE_NTOHL(Sa1_Motor_2_Target_Position);
+            motor_out2->Motor_drive_submode_select = EOE_NTOHL(Sa1_Motor_2_Mo___submode_select);
+            motor_out2->Modes_of_operation         = Sa1_Motor_2_Modes_of_operation;
         }        
     }
 }
