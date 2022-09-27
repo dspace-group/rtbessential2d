@@ -8,7 +8,7 @@
 
 #include "rtbessential2d.h"
 #include "rtbessential2d_private.h"
-#include "rtblogic.h"
+#include "logic/rtblogic/rtblogic.h"
 
 char IOmap[4096];
 
@@ -21,6 +21,35 @@ typedef struct RtbStruct {
     ec_timet tStart;
     unsigned cnt;
     tRtbState libstate;
+
+    // Controlder logic in
+    Bool    Testbench_Control_Enable;
+    Float64 angle_az;
+    Float64 angle_el;
+    Bool    Enable_SW_ENPO;
+    Float64 OperationModes;
+    Bool    Quit_error_;
+    Bool    Start_Homing;
+
+    // Motor in
+    UInt16  Motor_1_Controlword;
+    Int32   Motor_1_Target_Position;
+    UInt32  Motor_1_Motor_drive_submode_select;
+    Int8    Motor_1_Modes_of_operation;
+    UInt16  Motor_2_Controlword;
+    Int32   Motor_2_Target_Position;
+    UInt32  Motor_2_Motor_drive_submode_select;
+    Int8    Motor_2_Modes_of_operation;
+ 
+    // Motor out 
+    UInt16  Motor_1_Statusword;
+    Int32   Motor_1_Position_actual_value;
+    Int8    Motor_1_Modes_of_operation_display;
+    Int32   Motor_1_VelocityActualValue;
+    UInt16  Motor_2_Statusword;
+    Int32   Motor_2_Position_actual_value;
+    Int8    Motor_2_Modes_of_operation_display;
+    Int32   Motor_2_VelocityActualValue;
 } tRtb;
 
 tRtb * _h = NULL;
@@ -109,44 +138,44 @@ APIFCN tRtbResult rtb_getSlaveInformation(tRtb * h, int idx, char * name, unsign
 }
 
 APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double m1, double m2) {
-    Sa5_CorrectionFactor_M1 = m1;
-    Sa5_CorrectionFactor_M2 = m2;
+    //Sa5_CorrectionFactor_M1 = m1;
+    //Sa5_CorrectionFactor_M2 = m2;
 
     return RTB_OK;
 }
 
 APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg) {
-    Sa1_angle_az_deg_ = az_deg;
-    Sa1_angle_el_deg_ = el_deg;
+    h->angle_az = az_deg;
+    h->angle_el = el_deg;
 
     return RTB_OK;
 }
 
 APIFCN tRtbResult rtb_enableTestbench(tRtb * h, boolean enable) {
-    Sa1_Testbench___rol_Enable_0_1_ = enable;
+    h->Testbench_Control_Enable = enable;
     return RTB_OK;
 }
 
 APIFCN tRtbResult rtb_enableSwEnpo(tRtb * h, boolean enable) {
-    Sa1_Enable_SW_ENPO_0_1_ = enable;
+    h->Enable_SW_ENPO = enable;
     return RTB_OK;
 }
 
 APIFCN tRtbResult rtb_ackError(tRtb * h) {
-    Sa1_Quit_error__0_1_ = 1;
+    h->Quit_error_ = 1;
     return RTB_OK;
 }
 
 APIFCN tRtbResult rtb_setOperationMode(tRtb * h, tRtbOperationMode moo) {
     if((unsigned) moo > RTB_OM_POSITION_JOG)
         return RTB_ARG;
-    Sa1_OperationModes___ = moo;
+    h->OperationModes = moo;
 
     return RTB_OK;
 }
 
 APIFCN tRtbResult rtb_enableHoming(tRtb * h, boolean enable) {
-    Sa1_Start_Homing_0_1_ = enable;
+    h->Start_Homing = enable;
     return RTB_OK;
 }
 
@@ -162,25 +191,25 @@ APIFCN tRtbResult rtb_getSimulationTime(tRtb * h, double * t, unsigned * steps) 
 }
 
 APIFCN tRtbResult rtb_getMotorStatus(tRtb * h, tRtbMotorStatus * m1, tRtbMotorStatus * m2) {
-    m1->statusword = Sa1_Motor_1_Statusword;
-    m1->modesOfOperationDisplay = Sa1_Motor_1_Mo__eration_display;
-    m1->positionActualValue = Sa1_Motor_1_Po__on_actual_value;
-    m1->velocityActualValue = Sa1_Motor_1_VelocityActualValue;
+    m1->statusword = h->Motor_1_Statusword;
+    m1->modesOfOperationDisplay = h->Motor_1_Modes_of_operation_display;
+    m1->positionActualValue = h->Motor_1_Position_actual_value;
+    m1->velocityActualValue = h->Motor_1_VelocityActualValue;
     
-    m1->controlword             = Sa1_Motor_1_Controlword;
-    m1->targetPosition          = Sa1_Motor_1_Target_Position;
-    m1->motorDriveSubmodeSelect = Sa1_Motor_1_Mo___submode_select;
-    m1->modesOfOperation        = Sa1_Motor_1_Modes_of_operation;
+    m1->controlword             = h->Motor_1_Controlword;
+    m1->targetPosition          = h->Motor_1_Target_Position;
+    m1->motorDriveSubmodeSelect = h->Motor_1_Motor_drive_submode_select;
+    m1->modesOfOperation        = h->Motor_1_Modes_of_operation;
 
-    m2->statusword = Sa1_Motor_2_Statusword;
-    m2->modesOfOperationDisplay = Sa1_Motor_2_Mo__eration_display;
-    m2->positionActualValue = Sa1_Motor_2_Po__on_actual_value;
-    m2->velocityActualValue = Sa1_Motor_2_VelocityActualValue;
+    m2->statusword = h->Motor_2_Statusword;
+    m2->modesOfOperationDisplay = h->Motor_2_Modes_of_operation_display;
+    m2->positionActualValue = h->Motor_2_Position_actual_value;
+    m2->velocityActualValue = h->Motor_2_VelocityActualValue;
 
-    m2->controlword             = Sa1_Motor_2_Controlword;
-    m2->targetPosition          = Sa1_Motor_2_Target_Position;
-    m2->motorDriveSubmodeSelect = Sa1_Motor_2_Mo___submode_select;
-    m2->modesOfOperation        = Sa1_Motor_2_Modes_of_operation;
+    m2->controlword             = h->Motor_2_Controlword;
+    m2->targetPosition          = h->Motor_2_Target_Position;
+    m2->motorDriveSubmodeSelect = h->Motor_2_Motor_drive_submode_select;
+    m2->modesOfOperation        = h->Motor_2_Modes_of_operation;
     
     return RTB_OK;
 }
@@ -324,7 +353,7 @@ tRtbResult rtb_start(tRtb * h, const char * ifname) {
      */
     rtb_setCorrectionFactor(h, 0.881, 0.883333333333);
     rtb_setAngles(h, 0.0, 0.0);
-    Sa1_Quit_error__0_1_ = 0;
+    h->Quit_error_ = 0;
     rtb_setOperationMode(h, RTB_OM_HOMING);
 
     /*
@@ -485,29 +514,30 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
             tN5DriveIn * motor_in2 = (tN5DriveIn *) ec_slave[3].inputs;
             tN5DriveOut * motor_out2 = (tN5DriveOut *) ec_slave[3].outputs;
 
-            Sa1_Motor_1_Statusword          = EOE_HTONS(motor_in1->Statusword);
-            Sa1_Motor_1_Po__on_actual_value = EOE_HTONL(motor_in1->Position_actual_value);
-            Sa1_Motor_1_Mo__eration_display = motor_in1->Modes_of_operation_display;
-            Sa1_Motor_1_VelocityActualValue = EOE_HTONL(motor_in1->VelocityActualValue);
+            h->Motor_1_Statusword               = EOE_HTONS(motor_in1->Statusword);
+            h->Motor_1_Position_actual_value     = EOE_HTONL(motor_in1->Position_actual_value);
+            h->Motor_1_Modes_of_operation_display = motor_in1->Modes_of_operation_display;
+            h->Motor_1_VelocityActualValue       = EOE_HTONL(motor_in1->VelocityActualValue);
+            h->Motor_2_Statusword               = EOE_HTONS(motor_in2->Statusword);
+            h->Motor_2_Position_actual_value     = EOE_HTONL(motor_in2->Position_actual_value);
+            h->Motor_2_Modes_of_operation_display = motor_in2->Modes_of_operation_display;
+            h->Motor_2_VelocityActualValue       = EOE_HTONL(motor_in2->VelocityActualValue);
 
-            Sa1_Motor_2_Statusword          = EOE_HTONS(motor_in2->Statusword);
-            Sa1_Motor_2_Po__on_actual_value = EOE_HTONL(motor_in2->Position_actual_value);
-            Sa1_Motor_2_Mo__eration_display = motor_in2->Modes_of_operation_display;
-            Sa1_Motor_2_VelocityActualValue = EOE_HTONL(motor_in2->VelocityActualValue);
+            rtblogic(h->Testbench_Control_Enable, h->angle_az, h->angle_el, h->Enable_SW_ENPO, h->OperationModes, h->Quit_error_, h->Start_Homing, h->Motor_1_Statusword, h->Motor_1_Position_actual_value, h->Motor_1_Modes_of_operation_display, h->Motor_1_VelocityActualValue, h->Motor_2_Statusword, h->Motor_2_Position_actual_value, h->Motor_2_Modes_of_operation_display, h->Motor_2_VelocityActualValue,
+                     &h->Motor_1_Controlword, &h->Motor_1_Target_Position, &h->Motor_1_Motor_drive_submode_select, &h->Motor_1_Modes_of_operation, &h->Motor_2_Controlword, &h->Motor_2_Target_Position, &h->Motor_2_Motor_drive_submode_select, &h->Motor_2_Modes_of_operation);
 
-            rtblogic();
-            Sa1_Quit_error__0_1_ = 0;
+            h->Quit_error_ = 0;
             h->cnt++;
 
-            motor_out1->Controlword                = EOE_NTOHS(Sa1_Motor_1_Controlword);
-            motor_out1->Target_Position            = EOE_NTOHL(Sa1_Motor_1_Target_Position);
-            motor_out1->Motor_drive_submode_select = EOE_NTOHL(Sa1_Motor_1_Mo___submode_select);
-            motor_out1->Modes_of_operation         = Sa1_Motor_1_Modes_of_operation;
+            motor_out1->Controlword                = EOE_NTOHS(h->Motor_1_Controlword);
+            motor_out1->Target_Position            = EOE_NTOHL(h->Motor_1_Target_Position);
+            motor_out1->Motor_drive_submode_select = EOE_NTOHL(h->Motor_1_Motor_drive_submode_select);
+            motor_out1->Modes_of_operation         = h->Motor_1_Modes_of_operation;
 
-            motor_out2->Controlword                = EOE_NTOHS(Sa1_Motor_2_Controlword);
-            motor_out2->Target_Position            = EOE_NTOHL(Sa1_Motor_2_Target_Position);
-            motor_out2->Motor_drive_submode_select = EOE_NTOHL(Sa1_Motor_2_Mo___submode_select);
-            motor_out2->Modes_of_operation         = Sa1_Motor_2_Modes_of_operation;
+            motor_out2->Controlword                = EOE_NTOHS(h->Motor_2_Controlword);
+            motor_out2->Target_Position            = EOE_NTOHL(h->Motor_2_Target_Position);
+            motor_out2->Motor_drive_submode_select = EOE_NTOHL(h->Motor_2_Motor_drive_submode_select);
+            motor_out2->Modes_of_operation         = h->Motor_2_Modes_of_operation;
         }        
     }
 }
