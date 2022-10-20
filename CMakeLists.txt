@@ -8,14 +8,14 @@ target_link_libraries(rtbessential2dctl PUBLIC soem)
 set_property(TARGET soem PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(WIN32)
-    add_definitions(-DWPCAP -DHAVE_REMOTE)
-    find_path(WINPCAP_INCLUDE_DIR pcap.h
-              ${WINPCAP_HINT_INCLUDE_DIR})
-    find_library(WINPCAP_LIBRARY NAMES "wpcap"
-                                 PATHS ${WINPCAP_HINT_LIB_DIR})
-
     target_include_directories(rtbessential2dctl PUBLIC SOEM/oshw/win32/wpcap/Include)
-    target_link_libraries(rtbessential2dctl PUBLIC ${WINPCAP_LIBRARY})
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        target_link_directories(rtbessential2dctl PUBLIC SOEM/oshw/win32/wpcap/Lib/x64)
+    elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
+        target_link_directories(rtbessential2dctl PUBLIC SOEM/oshw/win32/wpcap/Lib)
+    endif()
+    
+    target_link_libraries(rtbessential2dctl PUBLIC wpcap.lib)
+    #set(OS_LIBS  Packet.lib Ws2_32.lib Winmm.lib)
     target_compile_definitions(rtbessential2dctl PUBLIC LIBEXPORT_EXPORTS)  
-elseif(UNIX AND NOT APPLE)
 endif()
