@@ -75,7 +75,7 @@ Motor status:
 
 ## Dependencies
 
-This work depends on [SOEM](https://github.com/OpenEtherCATsociety/SOEM), a simple open EtherCAT Master Library. SOEM on Windows depends on WinPCap or Npcap. Note that WinPCap nor Npcap are open source software.
+This work depends on [SOEM](https://github.com/OpenEtherCATsociety/SOEM), a simple open EtherCAT Master Library. SOEM on Windows depends on WinPCap or Npcap. Note that WinPCap nor Npcap are not open source software.
 
 ### Windows
 - [WinPCap](https://www.winpcap.org/) or [Npcap](https://npcap.com/)
