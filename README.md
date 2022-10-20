@@ -1,4 +1,6 @@
 # rtbessential2d
+[![CMake](https://github.com/dspace-group/rtbessential2d/actions/workflows/cmake.yml/badge.svg)](https://github.com/dspace-group/rtbessential2d/actions/workflows/cmake.yml)
+
 Radar Test Bench - Essential 2D Control Library
 
 ## Build
