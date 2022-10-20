@@ -31,11 +31,11 @@ Slaves in OP
 >>> ms = pyrtb.Get_motor_status()
 >>> print(ms[0]) # motor 1
 Motor control:
-- Control word: 0
-   Switch on: Off
-   Enable voltage: Off
-   Quick stop: Off
-   Enable operation: Off
+- Control word: 31
+   Switch on: On
+   Enable voltage: On
+   Quick stop: On
+   Enable operation: On
    Fault reset: Off
    Halt: Off
    Begin on time: Off
@@ -51,20 +51,20 @@ Motor control:
    Slow : Off
 - Modes of operation: 6, 'homing mode'
 Motor status:
-- Status word: 4616
-   Ready to switch on: Off
-   Switched on: Off
-   Operation enabled: Off
-   Fault: On
-   Voltage enabled: Off
-   Quick stop: Off
+- Status word: 5687
+   Ready to switch on: On
+   Switched on: On
+   Operation enabled: On
+   Fault: Off
+   Voltage enabled: On
+   Quick stop: On
    Switch on disabled: Off
    Warning: Off
    Remote: On
-   Target reached: Off
+   Target reached: On
    Internal limit active: Off
 - Modes of operation display: 6, 'homing mode'
-- Position: 68
+- Position: 0
 - Velocity: 0
 
 >>> pyrtb.Enable_enpo()

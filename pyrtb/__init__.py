@@ -292,8 +292,8 @@ class Pyrtb:
         # 3: Jog
         return self._setOperationMode(self._handle, om)
     
-    def Enable_testbench(self, enable=True):
-        return self._enableTestbench(self._handle, enable)
+#    def Enable_testbench(self, enable=True):
+#        return self._enableTestbench(self._handle, enable)
     
     def Enable_enpo(self, enable=True):
         return self._enableSwEnpo(self._handle, enable)
