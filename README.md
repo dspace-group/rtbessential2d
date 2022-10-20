@@ -27,6 +27,48 @@ Slaves in SAFE_OP
 Start working loop...done
 Slaves in OP
 0
+
+>>> ms = pyrtb.Get_motor_status()
+>>> print(ms[0]) # motor 1
+Motor control:
+- Control word: 0
+   Switch on: Off
+   Enable voltage: Off
+   Quick stop: Off
+   Enable operation: Off
+   Fault reset: Off
+   Halt: Off
+   Begin on time: Off
+- Target position: 0
+- Motor drive submode select: 65
+   CL/OL: On
+   VoS: Off
+   Brake: Off
+   Current Reduction: Off
+   AutoAl: Off
+   Torque: Off
+   BLDC: On
+   Slow : Off
+- Modes of operation: 6, 'homing mode'
+Motor status:
+- Status word: 4616
+   Ready to switch on: Off
+   Switched on: Off
+   Operation enabled: Off
+   Fault: On
+   Voltage enabled: Off
+   Quick stop: Off
+   Switch on disabled: Off
+   Warning: Off
+   Remote: On
+   Target reached: Off
+   Internal limit active: Off
+- Modes of operation display: 6, 'homing mode'
+- Position: 68
+- Velocity: 0
+
+>>> pyrtb.Enable_enpo()
+0
 ```
 
 ## Dependencies

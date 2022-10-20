@@ -167,7 +167,7 @@ APIFCN tRtbResult rtb_ackError(tRtb * h) {
 }
 
 APIFCN tRtbResult rtb_setOperationMode(tRtb * h, tRtbOperationMode moo) {
-    if((unsigned) moo > RTB_OM_POSITION_JOG)
+    if(!(moo == RTB_OM_HOMING || moo == RTB_OM_POSITION_CONTROL || moo == RTB_OM_POSITION_JOG))
         return RTB_ARG;
     h->OperationModes = moo;
 
@@ -481,8 +481,8 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
     tRtb * h = (tRtb*) arg;
 
     while(h->worker_loop) {
-        osal_usleep(10 * 1000);
         ec_send_processdata();
+        osal_usleep(10 * 1000);
         int wkc = ec_receive_processdata(EC_TIMEOUTRET);
 
         /*
@@ -500,7 +500,7 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
                     }
                 } else {
                     ec_slave[slave].islost = FALSE;
-                    printf("MESSAGE : slave %d found\n",slave);   
+                    printf("MESSAGE : slave %d found\n",slave);
                 }
             }
         }
@@ -514,14 +514,23 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
             tN5DriveIn * motor_in2 = (tN5DriveIn *) ec_slave[3].inputs;
             tN5DriveOut * motor_out2 = (tN5DriveOut *) ec_slave[3].outputs;
 
-            h->Motor_1_Statusword               = EOE_HTONS(motor_in1->Statusword);
-            h->Motor_1_Position_actual_value     = EOE_HTONL(motor_in1->Position_actual_value);
+#ifdef STATUSWORD_DEBUG
+            if(h->Motor_1_Statusword != motor_in1->Statusword) {
+                printf("- New motor 1 statusword: %u (from: %u)\n", (motor_in1->Statusword), h->Motor_1_Statusword);
+            }
+            if(h->Motor_2_Statusword != motor_in2->Statusword) {
+                printf("- New motor 2 statusword: %u (from: %u)\n", (motor_in2->Statusword), h->Motor_2_Statusword);
+            }
+#endif /* STATUSWORD_DEBUG */
+
+            h->Motor_1_Statusword                 = motor_in1->Statusword;
+            h->Motor_1_Position_actual_value      = motor_in1->Position_actual_value;
             h->Motor_1_Modes_of_operation_display = motor_in1->Modes_of_operation_display;
-            h->Motor_1_VelocityActualValue       = EOE_HTONL(motor_in1->VelocityActualValue);
-            h->Motor_2_Statusword               = EOE_HTONS(motor_in2->Statusword);
-            h->Motor_2_Position_actual_value     = EOE_HTONL(motor_in2->Position_actual_value);
+            h->Motor_1_VelocityActualValue        = motor_in1->VelocityActualValue;
+            h->Motor_2_Statusword                 = motor_in2->Statusword;
+            h->Motor_2_Position_actual_value      = motor_in2->Position_actual_value;
             h->Motor_2_Modes_of_operation_display = motor_in2->Modes_of_operation_display;
-            h->Motor_2_VelocityActualValue       = EOE_HTONL(motor_in2->VelocityActualValue);
+            h->Motor_2_VelocityActualValue        = motor_in2->VelocityActualValue;
 
             rtblogic(h->Testbench_Control_Enable, h->angle_az, h->angle_el, h->Enable_SW_ENPO, h->OperationModes, h->Quit_error_, h->Start_Homing, h->Motor_1_Statusword, h->Motor_1_Position_actual_value, h->Motor_1_Modes_of_operation_display, h->Motor_1_VelocityActualValue, h->Motor_2_Statusword, h->Motor_2_Position_actual_value, h->Motor_2_Modes_of_operation_display, h->Motor_2_VelocityActualValue,
                      &h->Motor_1_Controlword, &h->Motor_1_Target_Position, &h->Motor_1_Motor_drive_submode_select, &h->Motor_1_Modes_of_operation, &h->Motor_2_Controlword, &h->Motor_2_Target_Position, &h->Motor_2_Motor_drive_submode_select, &h->Motor_2_Modes_of_operation);
@@ -529,15 +538,24 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
             h->Quit_error_ = 0;
             h->cnt++;
 
-            motor_out1->Controlword                = EOE_NTOHS(h->Motor_1_Controlword);
-            motor_out1->Target_Position            = EOE_NTOHL(h->Motor_1_Target_Position);
-            motor_out1->Motor_drive_submode_select = EOE_NTOHL(h->Motor_1_Motor_drive_submode_select);
+#ifdef CONTROLWORD_DEBUG
+            if(h->Motor_1_Controlword != motor_out1->Controlword) {
+                printf("New motor 1 controlword: %u (from: %u)\n", h->Motor_1_Controlword, motor_out1->Controlword);
+            }
+            if(h->Motor_2_Controlword != motor_out2->Controlword) {
+                printf("New motor 2 controlword: %u (from: %u)\n", h->Motor_2_Controlword, motor_out2->Controlword);
+            }
+#endif /* CONTROLWORD_DEBUG */
+
+            motor_out1->Controlword                = h->Motor_1_Controlword;
+            motor_out1->Target_Position            = h->Motor_1_Target_Position;
+            motor_out1->Motor_drive_submode_select = h->Motor_1_Motor_drive_submode_select;
             motor_out1->Modes_of_operation         = h->Motor_1_Modes_of_operation;
 
-            motor_out2->Controlword                = EOE_NTOHS(h->Motor_2_Controlword);
-            motor_out2->Target_Position            = EOE_NTOHL(h->Motor_2_Target_Position);
-            motor_out2->Motor_drive_submode_select = EOE_NTOHL(h->Motor_2_Motor_drive_submode_select);
+            motor_out2->Controlword                = h->Motor_2_Controlword;
+            motor_out2->Target_Position            = h->Motor_2_Target_Position;
+            motor_out2->Motor_drive_submode_select = h->Motor_2_Motor_drive_submode_select;
             motor_out2->Modes_of_operation         = h->Motor_2_Modes_of_operation;
-        }        
+        }
     }
 }

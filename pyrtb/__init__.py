@@ -287,9 +287,9 @@ class Pyrtb:
         return self._setAngles(self._handle, az_deg, el_deg)
     
     def Set_operation_mode(self, om):
-        # 0: Homing
+        # 6: Homing
         # 1: Control
-        # 2: Jog
+        # 3: Jog
         return self._setOperationMode(self._handle, om)
     
     def Enable_testbench(self, enable=True):

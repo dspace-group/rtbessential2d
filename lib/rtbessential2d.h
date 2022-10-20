@@ -30,9 +30,9 @@ typedef enum {
 } tRtbResult;
 
 typedef enum {
-    RTB_OM_HOMING = 1,
-    RTB_OM_POSITION_CONTROL,
-    RTB_OM_POSITION_JOG,
+    RTB_OM_HOMING = 6,
+    RTB_OM_POSITION_CONTROL = 1,
+    RTB_OM_POSITION_JOG = 3,
 } tRtbOperationMode;
 
 typedef struct {
