@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
 
-set(WINPCAP_LIBRARY_WPCAP "not set" CACHE PATH "Path to WinPCap library")
-
 project(rtbessential2d)
 add_subdirectory(SOEM)
 
@@ -10,9 +8,14 @@ target_link_libraries(rtbessential2dctl PUBLIC soem)
 set_property(TARGET soem PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(WIN32)
-  target_include_directories(rtbessential2dctl PUBLIC SOEM/oshw/win32/wpcap/Include)
-  target_link_directories(rtbessential2dctl PUBLIC ${WINPCAP_LIBRARY_WPCAP})
-  target_link_libraries(rtbessential2dctl PUBLIC wpcap.lib)
-  target_compile_definitions(rtbessential2dctl PUBLIC LIBEXPORT_EXPORTS)  
+    add_definitions(-DWPCAP -DHAVE_REMOTE)
+    find_path(WINPCAP_INCLUDE_DIR pcap.h
+              ${WINPCAP_HINT_INCLUDE_DIR})
+    find_library(WINPCAP_LIBRARY NAMES "wpcap"
+                                 PATHS ${WINPCAP_HINT_LIB_DIR})
+
+    target_include_directories(rtbessential2dctl PUBLIC SOEM/oshw/win32/wpcap/Include)
+    target_link_libraries(rtbessential2dctl PUBLIC ${WINPCAP_LIBRARY})
+    target_compile_definitions(rtbessential2dctl PUBLIC LIBEXPORT_EXPORTS)  
 elseif(UNIX AND NOT APPLE)
 endif()
