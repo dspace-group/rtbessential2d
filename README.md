@@ -17,6 +17,8 @@ Before building, please ensure that the following tools are installed and approp
 - MSVC (Microsoft Visual C++) compiler toolchain
 - make (install [choco](https://chocolatey.org/install) and then install make with `choco install make`)
 
+### Build
+
 ```
 git clone --recurse-submodules https://github.com/dspace-group/rtbessential2d.git
 
