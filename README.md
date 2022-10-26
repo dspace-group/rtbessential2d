@@ -16,6 +16,7 @@ Please ensure that the following tools are installed and appropriately advertise
 
 - MSVC (Microsoft Visual C++) compiler toolchain
 - make (install [choco](https://chocolatey.org/install) and then install make with `choco install make`)
+- [CMake](https://cmake.org/)
 
 ## Build
 
