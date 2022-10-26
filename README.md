@@ -3,9 +3,9 @@
 
 Radar Test Bench - Essential 2D Control Library
 
-## Build
+## Preconditions
 
-Before building, please ensure that the following tools are installed and appropriately advertised via the PATH environment variable.
+Please ensure that the following tools are installed and appropriately advertised via the PATH environment variable.
 
 ### Linux
 
@@ -17,7 +17,7 @@ Before building, please ensure that the following tools are installed and approp
 - MSVC (Microsoft Visual C++) compiler toolchain
 - make (install [choco](https://chocolatey.org/install) and then install make with `choco install make`)
 
-### Build
+## Build
 
 ```
 git clone --recurse-submodules https://github.com/dspace-group/rtbessential2d.git
