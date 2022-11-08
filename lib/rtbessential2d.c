@@ -548,7 +548,7 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
             h->Motor_2_VelocityActualValue        = motor_in2->VelocityActualValue;
 
             rtblogic(h->Testbench_Control_Enable, h->angle_az, h->angle_el, h->Enable_SW_ENPO, h->OperationModes, h->Quit_error_, h->Start_Homing, h->Motor_1_Statusword, h->Motor_1_Position_actual_value, h->Motor_1_Modes_of_operation_display, h->Motor_1_VelocityActualValue, h->Motor_2_Statusword, h->Motor_2_Position_actual_value, h->Motor_2_Modes_of_operation_display, h->Motor_2_VelocityActualValue,
-                     h->correctionFactor_M1, h->correctionFactor_M2m, h->offset_M1, h->offset_M2,
+                     h->correctionFactor_M1, h->correctionFactor_M2, h->offset_M1, h->offset_M2,
                      &h->Motor_1_Controlword, &h->Motor_1_Target_Position, &h->Motor_1_Motor_drive_submode_select, &h->Motor_1_Modes_of_operation, &h->Motor_2_Controlword, &h->Motor_2_Target_Position, &h->Motor_2_Motor_drive_submode_select, &h->Motor_2_Modes_of_operation);
 
             h->Quit_error_ = 0;
