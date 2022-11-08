@@ -56,7 +56,7 @@ APIFCN tRtbResult rtb_start(tRtb * h, const char * ifname);
 APIFCN tRtbResult rtb_stop(tRtb * h);
 APIFCN tRtbResult rtb_getNumberOfDetectedSlaves(tRtb * h, unsigned * n);
 APIFCN tRtbResult rtb_getSlaveInformation(tRtb * h, int idx, char * name, unsigned * configAdr, unsigned * manId, unsigned * prodId);
-APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double m1, double m2);
+APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double cf_m1, double cf_m2, double offset_m1, double offset_m2);
 APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg);
 APIFCN tRtbResult rtb_enableTestbench(tRtb * h, boolean enable);
 APIFCN tRtbResult rtb_enableSwEnpo(tRtb * h, boolean enable);

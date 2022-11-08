@@ -50,6 +50,11 @@ typedef struct RtbStruct {
     Int32   Motor_2_Position_actual_value;
     Int8    Motor_2_Modes_of_operation_display;
     Int32   Motor_2_VelocityActualValue;
+
+    double correctionFactor_M1;
+    double correctionFactor_M2;
+    double offset_M1;
+    double offset_M2;
 } tRtb;
 
 tRtb * _h = NULL;
@@ -85,6 +90,14 @@ tRtb * rtb_init() {
     }
 
     h->libstate = RTB_Initialized;
+
+    /*
+     * Default correction factors
+     */
+    h->correctionFactor_M1 = 0.8889;
+    h->correctionFactor_M2 = 1.0442;
+    h->offset_M1 = 90.75;
+    h->offset_M2 = 29;
 
     return h;
 }
@@ -137,9 +150,11 @@ APIFCN tRtbResult rtb_getSlaveInformation(tRtb * h, int idx, char * name, unsign
     return RTB_OK;
 }
 
-APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double m1, double m2) {
-    //Sa5_CorrectionFactor_M1 = m1;
-    //Sa5_CorrectionFactor_M2 = m2;
+APIFCN tRtbResult rtb_setCorrectionFactor(tRtb * h, double cf_m1, double cf_m2, double offset_m1, double offset_m2) {
+    h->correctionFactor_M1 = cf_m1;
+    h->correctionFactor_M2 = cf_m2;
+    h->offset_M1 = offset_m1;
+    h->offset_M2 = offset_m2;
 
     return RTB_OK;
 }
@@ -533,6 +548,7 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
             h->Motor_2_VelocityActualValue        = motor_in2->VelocityActualValue;
 
             rtblogic(h->Testbench_Control_Enable, h->angle_az, h->angle_el, h->Enable_SW_ENPO, h->OperationModes, h->Quit_error_, h->Start_Homing, h->Motor_1_Statusword, h->Motor_1_Position_actual_value, h->Motor_1_Modes_of_operation_display, h->Motor_1_VelocityActualValue, h->Motor_2_Statusword, h->Motor_2_Position_actual_value, h->Motor_2_Modes_of_operation_display, h->Motor_2_VelocityActualValue,
+                     h->correctionFactor_M1, h->correctionFactor_M2m, h->offset_M1, h->offset_M2,
                      &h->Motor_1_Controlword, &h->Motor_1_Target_Position, &h->Motor_1_Motor_drive_submode_select, &h->Motor_1_Modes_of_operation, &h->Motor_2_Controlword, &h->Motor_2_Target_Position, &h->Motor_2_Motor_drive_submode_select, &h->Motor_2_Modes_of_operation);
 
             h->Quit_error_ = 0;

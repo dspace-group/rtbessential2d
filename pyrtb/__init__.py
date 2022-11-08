@@ -190,7 +190,7 @@ class Pyrtb:
 
         # setup _setCorrectionFactor
         self._setCorrectionFactor = self._lib.rtb_setCorrectionFactor
-        self._setCorrectionFactor.argtypes = [ ctypes.c_void_p, ctypes.c_double, ctypes.c_double ]
+        self._setCorrectionFactor.argtypes = [ ctypes.c_void_p, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double ]
         self._setCorrectionFactor.restype = ctypes.c_uint
 
         # setup _setAngles
@@ -280,8 +280,8 @@ class Pyrtb:
     def Stop(self):
         return self._stop(self._handle)
     
-    def Set_correction_factor(self, m1, m2):
-        return self._setCorrectionFactor(self._handle, m1, m2)
+    def Set_correction_factor(self, cf_m1, cf_m2, offset_m1, offset_m2):
+        return self._setCorrectionFactor(self._handle, cf_m1, cf_m2, offset_m1, offset_m2)
     
     def Set_angles(self, az_deg, el_deg):
         return self._setAngles(self._handle, az_deg, el_deg)
