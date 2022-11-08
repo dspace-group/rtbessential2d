@@ -90,15 +90,6 @@ tRtb * rtb_init() {
     }
 
     h->libstate = RTB_Initialized;
-
-    /*
-     * Default correction factors
-     */
-    h->correctionFactor_M1 = 0.8889;
-    h->correctionFactor_M2 = 1.0442;
-    h->offset_M1 = 90.75;
-    h->offset_M2 = 29;
-
     return h;
 }
 
@@ -366,7 +357,7 @@ tRtbResult rtb_start(tRtb * h, const char * ifname) {
     /*
      * Initialize the model
      */
-    rtb_setCorrectionFactor(h, 0.881, 0.883333333333);
+    rtb_setCorrectionFactor(h, 0.8889, 1.0442, 90.75, 29);
     rtb_setAngles(h, 0.0, 0.0);
     h->Quit_error_ = 0;
     rtb_setOperationMode(h, RTB_OM_HOMING);
