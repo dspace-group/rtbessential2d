@@ -89,6 +89,31 @@ Motor status:
 0
 ```
 
+## Python wrapper functions
+- `pyrtb = Pyrtb.Pyrtb(path)` Initialized python pyrtb wrapper with the path to the shared library (.so or .dll)
+- `pyrtb.Get_state()` Returns  the current state of the library (0: Initialized, 1: Starting, 2: Started)
+- `pyrtb.Get_interfaces()` Returns a list of interfaces (names and descriptions)
+- `pyrtb.Start(interface_name)` Start EtherCAT Master on the given interface
+- `pyrtb.Stop()` Stops EtherCAT Master
+- `pyrtb.Get_detected_slaves()` Returns a list with the detected EtherCAT Slaves
+- `pyrtb.Set_correction_factor(cf_m1, cf_m2, offset_m1, offset_m2)` Set correction factors and offsets for motor1 and motor2
+- `pyrtb.Set_angles(az, el)` Set azimith and elevation (in deg)
+- `pyrtb.Enable_enpo(enabled=True)` Enable (or disable) motor controller enpo. Motors won't move if enpo isn't enabled. After initialization enpo is disabled.
+- `pyrtb.Ack_error()` Reset motor errors
+- `pyrtb.Enable_homing()` Enable homing
+- `pyrtb.Get_motor_status()` Return list with status objects for for motor1 and motor2. (`print(pyrtb.Get_motor_status()[0])`)
+- `pyrtb.Get_simulation_time()` Return list with the current simulation time and the current simulation step. The values are updated only when the EtherCAT network is in operation.
+
+## Cooking recipe
+1. Build library as documented above
+2. Start a Python interpreter and load the wrapper with `import pyrtb as Pyrtb`. If your user doesn't have the rights to control the Ethernet interface of your computer, then start the Python interpreter with elevated user rights (Windows: Run as Administrator, Linux: `sudo python`)
+3. Create a wrapper object and load the shared library with `>>> pyrtb = Pyrtb.Pyrtb('../build/librtbessential2dctl.so')`
+4. List the available interfaces with `>>> pyrtb.Get_interfaces()`
+5. Start EtherCAT Master. E.g. with `>>> pyrtb.Start('eth0')`
+6. Check if RTB EtherCAT Slaves was found with `>>> pyrtb.Get_detected_slaves()`
+7. Use `pyrtb.Enable_enpo()`, `pyrtb.Set_correction_factor()`, `pyrtb.Set_angles(az, el)`, `pyrtb.Enable_homing()` to write your application.
+8. Use `pyrtb.Ack_error()`, `pyrtb.Get_motor_status()`, `pyrtb.Get_simulation_time()` for debugging purposes.
+
 ## Dependencies
 
 This work depends on [SOEM](https://github.com/OpenEtherCATsociety/SOEM)([License](https://github.com/OpenEtherCATsociety/SOEM/blob/master/LICENSE)), a simple open EtherCAT Master Library. SOEM on Windows depends on WinPCap or Npcap. Note that WinPCap nor Npcap are not open source software.
