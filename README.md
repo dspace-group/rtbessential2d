@@ -110,7 +110,7 @@ Motor status:
 3. Create a wrapper object and load the shared library with `>>> pyrtb = Pyrtb.Pyrtb('../build/librtbessential2dctl.so')`
 4. List the available interfaces with `>>> pyrtb.Get_interfaces()`
 5. Start EtherCAT Master. E.g. with `>>> pyrtb.Start('eth0')`
-6. Check if RTB EtherCAT Slaves was found with `>>> pyrtb.Get_detected_slaves()`
+6. Check whether RTB EtherCAT Slaves were found with `>>> pyrtb.Get_detected_slaves()`
 7. Use `pyrtb.Enable_enpo()`, `pyrtb.Set_correction_factor()`, `pyrtb.Set_angles(az, el)`, `pyrtb.Enable_homing()` to write your application.
 8. Use `pyrtb.Ack_error()`, `pyrtb.Get_motor_status()`, `pyrtb.Get_simulation_time()` for debugging purposes.
 
