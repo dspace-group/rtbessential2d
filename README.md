@@ -90,14 +90,14 @@ Motor status:
 ```
 
 ## Python wrapper functions
-- `pyrtb = Pyrtb.Pyrtb(path)` Initialized python pyrtb wrapper with the path to the shared library (.so or .dll)
-- `pyrtb.Get_state()` Returns  the current state of the library (0: Initialized, 1: Starting, 2: Started)
+- `pyrtb = Pyrtb.Pyrtb(path)` Initialize Python pyrtb wrapper with the path to the shared library (.so or .dll)
+- `pyrtb.Get_state()` Returns the current state of the library (0: Initialized, 1: Starting, 2: Started)
 - `pyrtb.Get_interfaces()` Returns a list of interfaces (names and descriptions)
 - `pyrtb.Start(interface_name)` Start EtherCAT Master on the given interface
 - `pyrtb.Stop()` Stops EtherCAT Master
 - `pyrtb.Get_detected_slaves()` Returns a list with the detected EtherCAT Slaves
 - `pyrtb.Set_correction_factor(cf_m1, cf_m2, offset_m1, offset_m2)` Set correction factors and offsets for motor1 and motor2
-- `pyrtb.Set_angles(az, el)` Set azimith and elevation (in deg)
+- `pyrtb.Set_angles(az, el)` Set azimuth and elevation (in deg)
 - `pyrtb.Enable_enpo(enabled=True)` Enable (or disable) motor controller enpo. Motors won't move if enpo isn't enabled. After initialization enpo is disabled.
 - `pyrtb.Ack_error()` Reset motor errors
 - `pyrtb.Enable_homing()` Enable homing
