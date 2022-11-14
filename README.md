@@ -14,7 +14,7 @@ Please ensure that the following tools are installed and appropriately advertise
 
 ### Windows
 
-- MSVC (Microsoft Visual C++) compiler toolchain
+- MSVC (Microsoft Visual C++ or [Microsoft C++ Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/)) compiler toolchain
 - make (install [choco](https://chocolatey.org/install) and then install make with `choco install make`)
 - [CMake](https://cmake.org/)
 
@@ -116,7 +116,7 @@ Motor status:
 
 ## Dependencies
 
-This work depends on [SOEM](https://github.com/OpenEtherCATsociety/SOEM)([License](https://github.com/OpenEtherCATsociety/SOEM/blob/master/LICENSE)), a simple open EtherCAT Master Library. SOEM on Windows depends on WinPCap or Npcap. Note that WinPCap nor Npcap are not open source software.
+This work depends on [SOEM](https://github.com/OpenEtherCATsociety/SOEM)([License](https://github.com/OpenEtherCATsociety/SOEM/blob/master/LICENSE)), a simple open EtherCAT Master Library. SOEM on Windows depends on WinPCap or Npcap. Note that neither WinPCap nor Npcap are open source software.
 
 ### Windows
 - [WinPCap](https://www.winpcap.org/) or [Npcap](https://npcap.com/)
