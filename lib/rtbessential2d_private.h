@@ -22,6 +22,10 @@ tEcSlaveDesc ecSlaveDescs[] = {
     {.id = 3, .name = "N5-1-1", .manId = 0x0000026c, .prodId = 0x00000007 }
 };
 
+#ifdef _MSC_VER
+#pragma pack(push, 1)
+#endif
+
 typedef struct PACKED {
     uint16_t Statusword;
     int32_t Position_actual_value;
@@ -35,5 +39,9 @@ typedef struct PACKED {
     uint32_t Motor_drive_submode_select;
     int8_t Modes_of_operation;
 } tN5DriveOut;
+
+#ifdef _MSC_VER
+#pragma pack(pop)
+#endif
 
 #endif /* __RTBESSENTIAL2D_PRIVATE_H__ */
