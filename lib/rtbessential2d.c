@@ -26,6 +26,8 @@ typedef struct RtbStruct {
     Bool    Testbench_Control_Enable;
     Float64 angle_az;
     Float64 angle_el;
+    Float64 angle_az_status;
+    Float64 angle_el_status;
     Bool    Enable_SW_ENPO;
     Float64 OperationModes;
     Bool    Quit_error_;
@@ -154,6 +156,12 @@ APIFCN tRtbResult rtb_setAngles(tRtb * h, double az_deg, double el_deg) {
     h->angle_az = az_deg;
     h->angle_el = el_deg;
 
+    return RTB_OK;
+}
+
+APIFCN tRtbResult rtb_getAngles(tRtb * h, double * az_deg, double * el_deg) {
+    *az_deg = h->angle_az_status;
+    *el_deg = h->angle_el_status;
     return RTB_OK;
 }
 
@@ -540,7 +548,8 @@ OSAL_THREAD_FUNC _rtb_worker(void * arg) {
 
             rtblogic(h->Testbench_Control_Enable, h->angle_az, h->angle_el, h->Enable_SW_ENPO, h->OperationModes, h->Quit_error_, h->Start_Homing, h->Motor_1_Statusword, h->Motor_1_Position_actual_value, h->Motor_1_Modes_of_operation_display, h->Motor_1_VelocityActualValue, h->Motor_2_Statusword, h->Motor_2_Position_actual_value, h->Motor_2_Modes_of_operation_display, h->Motor_2_VelocityActualValue,
                      h->correctionFactor_M1, h->correctionFactor_M2, h->offset_M1, h->offset_M2,
-                     &h->Motor_1_Controlword, &h->Motor_1_Target_Position, &h->Motor_1_Motor_drive_submode_select, &h->Motor_1_Modes_of_operation, &h->Motor_2_Controlword, &h->Motor_2_Target_Position, &h->Motor_2_Motor_drive_submode_select, &h->Motor_2_Modes_of_operation);
+                     &h->Motor_1_Controlword, &h->Motor_1_Target_Position, &h->Motor_1_Motor_drive_submode_select, &h->Motor_1_Modes_of_operation, &h->Motor_2_Controlword, &h->Motor_2_Target_Position, &h->Motor_2_Motor_drive_submode_select, &h->Motor_2_Modes_of_operation,
+                     &h->angle_az_status, &h->angle_el_status);
 
             h->Quit_error_ = 0;
             h->cnt++;

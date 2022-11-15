@@ -128,6 +128,7 @@ class Pyrtb:
     _term = None
     _setCorrectionFactor = None
     _setAngles = None
+    _getAngles = None
     _enableTestbench = None
     _enableSwEnpo = None
     _setOperationMode = None
@@ -197,6 +198,11 @@ class Pyrtb:
         self._setAngles = self._lib.rtb_setAngles
         self._setAngles.argtypes = [ ctypes.c_void_p, ctypes.c_double, ctypes.c_double ]
         self._setAngles.restype = ctypes.c_uint
+
+        # setup _getAngles
+        self._getAngles = self._lib.rtb_getAngles
+        self._getAngles.argtypes = [ ctypes.c_void_p, POINTER(ctypes.c_double), POINTER(ctypes.c_double) ]
+        self._getAngles.restype = ctypes.c_uint
 
         # setup _enableTestbench
         self._enableTestbench = self._lib.rtb_enableTestbench
@@ -285,6 +291,12 @@ class Pyrtb:
     
     def Set_angles(self, az_deg, el_deg):
         return self._setAngles(self._handle, az_deg, el_deg)
+    
+    def Get_angles(self):
+        az_deg = ctypes.c_double()
+        el_deg = ctypes.c_double()
+        self._getAngles(self._handle, ctypes.byref(az_deg), ctypes.byref(el_deg))
+        return (az_deg, el_deg)
     
     def Set_operation_mode(self, om):
         # 6: Homing

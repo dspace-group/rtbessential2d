@@ -4,7 +4,7 @@
  *** TargetLink subsystem : RadarTestbench_drivesctl/Testbench_Radar/Testbench_Control/rtblogic
  *** Codefile             : tl_basetypes.h
  ***
- *** Generation date: 2022-11-07 12:15:23
+ *** Generation date: 2022-11-15 09:32:34
  ***
  *** TargetLink version      : 5.2 from 11-Okt-2021
  *** Code generator version  : Build Id 5.2.0.25 from 2021-10-07 14:37:36

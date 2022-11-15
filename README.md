@@ -98,6 +98,7 @@ Motor status:
 - `pyrtb.Get_detected_slaves()` Returns a list with the detected EtherCAT Slaves
 - `pyrtb.Set_correction_factor(cf_m1, cf_m2, offset_m1, offset_m2)` Set correction factors and offsets for motor1 and motor2
 - `pyrtb.Set_angles(az, el)` Set azimuth and elevation (in deg)
+- `pyrtb.Get_angles()` Returns a (azimuth, elevation) tuple
 - `pyrtb.Enable_enpo(enabled=True)` Enable (or disable) motor controller enpo. Motors won't move if enpo isn't enabled. After initialization enpo is disabled.
 - `pyrtb.Ack_error()` Reset motor errors
 - `pyrtb.Enable_homing()` Enable homing
