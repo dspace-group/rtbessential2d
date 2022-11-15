@@ -99,7 +99,7 @@ Motor status:
 - `pyrtb.Set_correction_factor(cf_m1, cf_m2, offset_m1, offset_m2)` Set correction factors and offsets for motor1 and motor2
 - `pyrtb.Set_angles(az, el)` Set azimuth and elevation (in deg)
 - `pyrtb.Enable_enpo()` Enable (or disable with False as argument) motor controller enpo. Motors won't move if enpo isn't enabled. After initialization enpo is disabled.
-- `pyrtb.Set_operation_mode(om)` Switch operation mode to homing (6) or to profile position (1)
+- `pyrtb.Set_operation_mode(om)` Switch operation mode to homing (6) or to positioning (1)
 - `pyrtb.Ack_error()` Reset motor errors
 - `pyrtb.Enable_homing()` Enable homing
 - `pyrtb.Get_motor_status()` Return list with status objects for for motor1 and motor2. (`print(pyrtb.Get_motor_status()[0])`)
@@ -114,6 +114,8 @@ Motor status:
 6. Check whether RTB EtherCAT Slaves were found with `>>> pyrtb.Get_detected_slaves()`
 7. Use `pyrtb.Enable_enpo()`, `pyrtb.Set_correction_factor()`, `pyrtb.Set_angles(az, el)`, `pyrtb.Enable_homing()` to write your application.
 8. Use `pyrtb.Ack_error()`, `pyrtb.Get_motor_status()`, `pyrtb.Get_simulation_time()` for debugging purposes.
+
+**_NOTE:_**  To set the angles, first disable enpo (`pyrtb.Enable_enpo(False)`), set the operation mode to positioning (`pyrtb.Set_operation_mode(1)`), enable enpo (`pyrtb.Enable_enpo(True)`) and `pyrtb.Set_angles(az, el)`.
 
 ## Dependencies
 
