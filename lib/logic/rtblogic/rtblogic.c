@@ -117,7 +117,13 @@
   INCLUDES
 \*------------------------------------------------------------------------------------------------*/
 
-//#include "tl_limits.h"
+#include <float.h>
+
+#define tl_FLOAT32MAX FLT_MAX /* Upper limit of Float32 */
+#define tl_FLOAT32NMIN (-FLT_MAX) /* Lower limit of Float32 */
+#define tl_FLOAT64MAX DBL_MAX /* Upper limit of Float64 */
+#define tl_FLOAT64NMIN (-DBL_MAX) /* Lower limit of Float64 */
+
 #include "rtblogic.h"
 
 #ifdef __cplusplus
