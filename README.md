@@ -123,3 +123,6 @@ This work depends on [SOEM](https://github.com/OpenEtherCATsociety/SOEM)([Licens
 
 ### Windows
 - [WinPCap](https://www.winpcap.org/) or [Npcap](https://npcap.com/)
+
+## Acknowledgement
+Powered by [dSPACE TargetLink](https://www.dspace.com/en/pub/home/products/sw/pcgs/targetlink.cfm) and [SOEM](https://github.com/OpenEtherCATsociety/SOEM)
