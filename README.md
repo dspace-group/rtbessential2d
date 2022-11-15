@@ -18,6 +18,10 @@ Please ensure that the following tools are installed and appropriately advertise
 - make (install [choco](https://chocolatey.org/install) and then install make with `choco install make`)
 - [CMake](https://cmake.org/)
 
+### Hardware
+
+- [Radar Test Bench - Essential 2D](https://www.dspace.com/de/gmb/home/products/hw/test_benches/radar_test_benches/radar_test_bench_essential_2d.cfm)
+
 ## Build
 
 ```
